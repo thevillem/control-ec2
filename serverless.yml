@@ -1,0 +1,50 @@
+service: control-ec2
+
+frameworkVersion: "<3.0.0"
+
+provider:
+  name: aws
+  stage: prod
+  runtime: python3.8
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+       - "logs:CreateLogGroup"
+       - "logs:CreateLogStream"
+       - "logs:PutLogEvents"
+      Resource: "arn:aws:logs:*:*:*"
+
+plugins:
+  - serverless-iam-roles-per-function
+  - serverless-local-schedule
+  - serverless-plugin-log-retention
+custom:
+  logRetentionInDays: 7
+
+functions:
+  start:
+    handler: handler.start
+    events:
+      # Launch EC2 instance at 8 am everyday
+      - schedule:
+          rate: cron(0 8 * * ? *)
+          timezone: America/New_York
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - "ec2:Start*"
+        Resource: "*"
+    
+  stop:
+    handler: handler.stop
+    events:
+      # Stop EC2 instances at 10:30 pm everyday
+      - schedule:
+          rate: cron(30 22 * * ? *)
+          timezone: America/New_York
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - "ec2:Stop*"
+        Resource: "*"
+    
