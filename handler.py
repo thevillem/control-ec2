@@ -4,7 +4,7 @@ import boto3
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-instances = ['i-0c548e60cd4c5592e']
+instances = ['']
 ec2 = boto3.client('ec2', region_name="us-east-1")
 
 def start(event, context):
