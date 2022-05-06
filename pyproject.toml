@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "control-ec2"
+version = "0.1.0"
+description = ""
+authors = ["thevillem <mike.villen@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+boto3 = "^1.22.9"
+
+[tool.poetry.dev-dependencies]
+black = "^22.3.0"
+isort = "^5.10.1"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

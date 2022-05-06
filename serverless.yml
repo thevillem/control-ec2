@@ -88,6 +88,8 @@ resources:
                 - Effect: Allow
                   Action:
                     - ec2:StartInstances
+                    - ec2:DescribeInstances
+                    - ec2:DescribeTags
                   Resource:
                     - 'arn:aws:ec2:*:*:instance/*'
 
@@ -112,6 +114,8 @@ resources:
                 - Effect: Allow
                   Action:
                     - ec2:StopInstances
+                    - ec2:DescribeInstances
+                    - ec2:DescribeTags
                   Resource:
                     - 'arn:aws:ec2:*:*:instance/*'
     
