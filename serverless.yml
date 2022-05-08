@@ -4,8 +4,6 @@ provider:
   name: aws
   stage: prod
   runtime: python3.8
-  iam:
-    role: lambda-write-cloudwatch
 
 plugins:
   - serverless-plugin-log-retention
@@ -13,16 +11,21 @@ plugins:
 custom:
   logRetentionInDays: 7
 
+package:
+  patterns:
+    - handler.py
+
 functions:
   start:
     role: startEc2LambdaRole
     handler: handler.start
     events:
-      # Launch EC2 instance at 8 am Eastern everyday
       - schedule:
           rate: 
-            - cron(0 12 ? * SAT-SUN *)
-            - cron(0 18 ? * MON-FRI *)
+            # Launch EC2 instance at 9 am Eastern on SAT & SUN
+            - cron(0 13 ? * SAT-SUN *)
+            # Launch EC2 instance at 5 pm Eastern on MON - FRI
+            - cron(0 21 ? * MON-FRI *)
     
   stop:
     role: stopEc2LambdaRole
@@ -34,39 +37,7 @@ functions:
             - cron(0 6 * * ? *)
 
 resources:
-  Resources:
-    lambdaWriteCloudwatchRole:
-      Type: AWS::IAM::Role
-      Properties:
-        Path: /
-        RoleName: LambdaWriteCloudwatchRole
-        AssumeRolePolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-            - Effect: Allow
-              Principal:
-                Service:
-                  - lambda.amazonaws.com
-              Action: sts:AssumeRole
-        Policies:
-          - PolicyName: LambdaWriteCloudwatchPolicy
-            PolicyDocument:
-              Version: '2012-10-17'
-              Statement:
-                - Effect: Allow # note that these rights are given in the default policy and are required if you want logs out of your lambda(s)
-                  Action:
-                    - logs:CreateLogGroup
-                    - logs:CreateLogStream
-                    - logs:PutLogEvents
-                  Resource:
-                    - 'Fn::Join':
-                      - ':'
-                      -
-                        - 'arn:aws:logs'
-                        - Ref: 'AWS::Region'
-                        - Ref: 'AWS::AccountId'
-                        - 'log-group:/aws/lambda/*:*:*'
-    
+  Resources:   
     startEc2LambdaRole:
       Type: AWS::IAM::Role
       Properties:
@@ -91,7 +62,21 @@ resources:
                     - ec2:DescribeInstances
                     - ec2:DescribeTags
                   Resource:
-                    - 'arn:aws:ec2:*:*:instance/*'
+                    - '*'
+
+                - Effect: Allow
+                  Action:
+                    - logs:CreateLogGroup
+                    - logs:CreateLogStream
+                    - logs:PutLogEvents
+                  Resource:
+                    - 'Fn::Join':
+                      - ':'
+                      -
+                        - 'arn:aws:logs'
+                        - Ref: 'AWS::Region'
+                        - Ref: 'AWS::AccountId'
+                        - 'log-group:/aws/lambda/*:*:*'
 
     stopEc2LambdaRole:
       Type: AWS::IAM::Role
@@ -117,6 +102,20 @@ resources:
                     - ec2:DescribeInstances
                     - ec2:DescribeTags
                   Resource:
-                    - 'arn:aws:ec2:*:*:instance/*'
+                    - '*'
+
+                - Effect: Allow
+                  Action:
+                    - logs:CreateLogGroup
+                    - logs:CreateLogStream
+                    - logs:PutLogEvents
+                  Resource:
+                    - 'Fn::Join':
+                      - ':'
+                      -
+                        - 'arn:aws:logs'
+                        - Ref: 'AWS::Region'
+                        - Ref: 'AWS::AccountId'
+                        - 'log-group:/aws/lambda/*:*:*'
     
 configValidationMode: error

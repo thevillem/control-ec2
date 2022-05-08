@@ -20,7 +20,7 @@ def lookup_instance(name):
 
     for instances in ec2_query["Reservations"]:
         for instance in instances["Instances"]:
-            matched_instances.append(instance["ImageId"])
+            matched_instances.append(instance["InstanceId"])
 
     return matched_instances
 

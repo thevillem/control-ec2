@@ -4,6 +4,7 @@ jspm_packages
 
 # Python distribution / packaging
 .Python
+.venv/
 venv/
 build/
 develop-eggs/
